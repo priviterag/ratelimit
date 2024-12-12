@@ -43,6 +43,23 @@ function envoy_on_request(request_handle)
 end
 ```
 
+## How to change the response
+```lua
+function envoy_on_response(response_handle)
+  local status_code = response_handle:headers():get(":status")
+
+  if status_code == "429" then
+    -- Add a custom header
+    response_handle:headers():add("x-custom-header", "Rate limit triggered")
+
+    ---- Set a JSON body
+    response_handle:headers():replace("content-type", "application/json")
+    local body = '{"error": "rate_limit_exceeded", "retry_after": 60}'
+    response_handle:body(true):setBytes(body)
+  end
+end
+```
+
 ## Full test environment - Configure rate limits through files
 
 To run a fully configured environment to demo Envoy based rate limiting, run:
